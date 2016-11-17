@@ -13,8 +13,12 @@
 #if !defined(_PCF8574_H)// && defined(HAVE_I2C) && defined(USE_I2C)
 #define _PCF8574_H
 #include <stdint.h>
-#include "stm32f0xx.h"
+#ifdef STM32F0
 #include "stm32f0xx_nucleo_32.h"
+#elif defined(STM32F1)
+#include "stm32f1xx_hal.h"
+#endif
+
 
 class Pcf8574
 {

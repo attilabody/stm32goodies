@@ -7,7 +7,11 @@
 
 //#include "config.h"
 //#if defined(HAVE_I2C) && defined(USE_I2C)
+#ifdef STM32F0
 #include "stm32f0xx_hal.h"
+#elif defined(STM32F1)
+#include "stm32f1xx_hal.h"
+#endif
 #include <string.h>
 //#include <util/delay.h>
 
