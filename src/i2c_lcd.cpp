@@ -8,7 +8,6 @@
 //#include "config.h"
 //#if defined(HAVE_I2C) && defined(USE_I2C)
 #include "stm32f0xx_hal.h"
-#include <stdlib.h>
 #include <string.h>
 //#include <util/delay.h>
 
@@ -59,6 +58,62 @@
 #define En 0b00000100  // Enable bit
 #define Rw 0b00000010  // Read/Write bit
 #define Rs 0b00000001  // Register select bit
+
+//////////////////////////////////////////////////////////////////////////////
+inline void revstr(char *first, char *last)
+{
+	char tmp;
+	while(last > first) {
+		tmp = *first;
+		*first++ = *last;
+		*last-- = tmp;
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+inline size_t uitodec( char* buffer, unsigned int data)
+{
+	char *b2 = buffer;
+	if(!data) {
+		*b2++ = '0';
+		*b2 = '\0';
+		return 1;
+	}
+
+	while(data) {
+		*b2++ = (data % 10) + '0';
+		data /= 10;
+	}
+	size_t ret = b2 - buffer;
+
+	*b2-- = 0;
+
+	revstr(buffer, b2);
+    return ret;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+inline size_t uitohex( char* buffer, unsigned int data)
+{
+	char *b2 = buffer;
+	if(!data) {
+		*b2++ = '0';
+		*b2 = '\0';
+		return 1;
+	}
+
+	while(data) {
+		uint8_t curval = data & 0x0f;
+		*b2++ = curval + '0' + (curval < 10) ? 0 : 'A' - '0';
+		data /= 10;
+	}
+	size_t ret = b2 - buffer;
+
+	*b2-- = 0;
+
+	revstr(buffer, b2);
+    return ret;
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -195,12 +250,12 @@ HAL_StatusTypeDef I2cLcd::Print(const char *str)
 }
 
 //////////////////////////////////////////////////////////////////////////////
-size_t I2cLcd::Print(int i, bool hex)
+size_t I2cLcd::Print(unsigned int u, bool hex)
 {
-	char	buffer[sizeof(i)*3+1];
-	itoa(i, buffer, hex ? 16 : 10);
+	char	buffer[11];
+	size_t ret = uitodec(buffer, u);
 	Print(buffer);
-	return strlen(buffer);
+	return ret;
 }
 
 

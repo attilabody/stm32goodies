@@ -16,7 +16,7 @@ public:
 	HAL_StatusTypeDef	Home();
 	HAL_StatusTypeDef	SetCursor(uint8_t x, uint8_t y);
 	HAL_StatusTypeDef	Print(const char* str);
-	size_t	Print(int i, bool hex = false);
+	size_t	Print(unsigned int i, bool hex = false);
 
 private:
 	inline HAL_StatusTypeDef SendData();
