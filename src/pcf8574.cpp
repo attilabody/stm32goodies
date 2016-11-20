@@ -19,61 +19,60 @@
 //#include "config.h"
 //#if defined(HAVE_I2C) && defined(USE_I2C)
 #include "pcf8574.h"
-extern I2C_HandleTypeDef hi2c1;
 
 Pcf8574::Pcf8574(I2C_HandleTypeDef *hi2c, uint8_t i2cAddress, uint8_t initialData)
-: m_i2cAddress(i2cAddress)
-, m_hi2c(hi2c)
+: I2cMaster(hi2c)
+, m_i2cAddress(i2cAddress)
+, m_data(initialData)
 {
-	Write(initialData);
 }
 
-HAL_StatusTypeDef Pcf8574::Write(uint8_t value)
+I2cMaster::Status Pcf8574::Write(uint8_t value)
 {
 	m_data = value;
-	return Write();
+	return I2cMaster::Write(m_data, m_i2cAddress);
 }
 
-HAL_StatusTypeDef Pcf8574::Write(uint8_t pin, bool value)
+I2cMaster::Status Pcf8574::Write(uint8_t pin, bool value)
 {
 	if(!value)
 		m_data &= ~(1 << pin);
 	else
 		m_data |= (1 << pin);
 
-	return Write();
+	return I2cMaster::Write(m_data, m_i2cAddress);
 }
 
-HAL_StatusTypeDef Pcf8574::Read(uint8_t &value)
+I2cMaster::Status Pcf8574::Read(uint8_t &value)
 {
-	HAL_StatusTypeDef ret = Read();
+	Status ret = I2cMaster::Read(m_data, m_i2cAddress);
 	value = m_data;
 	return ret;
 }
 
-HAL_StatusTypeDef Pcf8574::Read(uint8_t pin, bool &value)
+I2cMaster::Status Pcf8574::Read(uint8_t pin, bool &value)
 {
-	HAL_StatusTypeDef ret = Read();
+	I2cMaster::Status ret = I2cMaster::Read(m_data, m_i2cAddress);
 	value = (m_data & (1 << pin)) != 0;
 	return ret;
 }
 
-HAL_StatusTypeDef Pcf8574::Toggle(uint8_t pin)
+I2cMaster::Status Pcf8574::Toggle(uint8_t pin)
 {
 	m_data ^= (1 << pin);
-	return Write();
+	return I2cMaster::Write(m_data, m_i2cAddress);
 }
 
-HAL_StatusTypeDef Pcf8574::ShiftRight(uint8_t n)
+I2cMaster::Status Pcf8574::ShiftRight(uint8_t n)
 {
 	m_data >>= n;
-	return Write();
+	return I2cMaster::Write(m_data, m_i2cAddress);
 }
 
-HAL_StatusTypeDef Pcf8574::ShiftLeft(uint8_t n)
+I2cMaster::Status Pcf8574::ShiftLeft(uint8_t n)
 {
 	m_data <<= n;
-	return Write();
+	return I2cMaster::Write(m_data, m_i2cAddress);
 }
 
 //#endif	//	#if defined(HAVE_I2C) && defined(USE_I2C)

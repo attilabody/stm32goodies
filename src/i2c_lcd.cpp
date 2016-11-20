@@ -7,12 +7,7 @@
 
 //#include "config.h"
 //#if defined(HAVE_I2C) && defined(USE_I2C)
-#ifdef STM32F0
-#include "stm32f0xx_hal.h"
-#elif defined(STM32F1)
-#include "stm32f1xx_hal.h"
-#endif
-#include <string.h>
+#include <stm32_hal.h>
 //#include <util/delay.h>
 
 #include "i2c_lcd.h"
@@ -132,25 +127,25 @@ const uint8_t I2cLcd::m_init[5] = {
 };
 
 //////////////////////////////////////////////////////////////////////////////
-I2cLcd::I2cLcd(I2C_HandleTypeDef *hi2c, uint8_t i2cAddress)
-: m_data(LCD_BACKLIGHT)
+I2cLcd::I2cLcd(I2C_HandleTypeDef *hi2c, uint16_t i2cAddress)
+: I2cMaster(hi2c)
+, m_data(LCD_BACKLIGHT)
 , m_i2cAddress(i2cAddress)
-, m_hi2c(hi2c)
 {
 }
 
 //////////////////////////////////////////////////////////////////////////////
 // 200 us @ 100kHz
-inline HAL_StatusTypeDef I2cLcd::SendData()
+inline I2cMaster::Status I2cLcd::SendData()
 {
-	return HAL_I2C_Master_Transmit(m_hi2c, m_i2cAddress, &m_data, 1, HAL_MAX_DELAY);
+	return Write(m_data, m_i2cAddress);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 // 400 us @ 100kHz
-inline HAL_StatusTypeDef I2cLcd::Epulse()
+inline I2cMaster::Status I2cLcd::Epulse()
 {
-	HAL_StatusTypeDef	ret;
+	I2cMaster::Status	ret;
 	m_data |= En;
 	ret = SendData();
 	m_data &= ~En;
@@ -161,9 +156,9 @@ inline HAL_StatusTypeDef I2cLcd::Epulse()
 
 //////////////////////////////////////////////////////////////////////////////
 // 600 us @ 100kHz
-inline HAL_StatusTypeDef I2cLcd::SendNibble(uint8_t nibble)
+inline I2cMaster::Status I2cLcd::SendNibble(uint8_t nibble)
 {
-	HAL_StatusTypeDef ret;
+	I2cMaster::Status ret;
 	m_data = ((m_data & 0x0f) | (nibble & 0xf0));
 	ret = SendData();
 	if(ret == HAL_OK)
@@ -172,9 +167,9 @@ inline HAL_StatusTypeDef I2cLcd::SendNibble(uint8_t nibble)
 }
 
 //////////////////////////////////////////////////////////////////////////////
-inline HAL_StatusTypeDef I2cLcd::SendByte(uint8_t b, bool isCmd)
+inline I2cMaster::Status I2cLcd::SendByte(uint8_t b, bool isCmd)
 {
-	HAL_StatusTypeDef ret;
+	I2cMaster::Status ret;
 
 	m_data = ((m_data & 0x0f & ~Rs) | (b & 0xf0) | (isCmd ? 0 : Rs));
 	ret = SendData();
@@ -191,9 +186,9 @@ inline HAL_StatusTypeDef I2cLcd::SendByte(uint8_t b, bool isCmd)
 }
 
 //////////////////////////////////////////////////////////////////////////////
-HAL_StatusTypeDef I2cLcd::Init()
+I2cMaster::Status I2cLcd::Init()
 {
-	HAL_StatusTypeDef ret;
+	I2cMaster::Status ret;
 	uint8_t count;
 
 	m_data = LCD_BACKLIGHT;
@@ -220,31 +215,31 @@ HAL_StatusTypeDef I2cLcd::Init()
 }
 
 //////////////////////////////////////////////////////////////////////////////
-HAL_StatusTypeDef I2cLcd::Clear()
+I2cMaster::Status I2cLcd::Clear()
 {
-	HAL_StatusTypeDef ret = SendByte(LCD_CLEARDISPLAY, true);	// clear display, set cursor position to zero
+	I2cMaster::Status ret = SendByte(LCD_CLEARDISPLAY, true);	// clear display, set cursor position to zero
 	HAL_Delay(3);												// this command takes a long time!
 	return ret;
 }
 
 //////////////////////////////////////////////////////////////////////////////
-HAL_StatusTypeDef I2cLcd::Home()
+I2cMaster::Status I2cLcd::Home()
 {
-	HAL_StatusTypeDef ret = SendByte(LCD_RETURNHOME, true);		// set cursor position to zero
+	I2cMaster::Status ret = SendByte(LCD_RETURNHOME, true);		// set cursor position to zero
 	HAL_Delay(2);												// this command takes a long time!
 	return ret;
 }
 
 //////////////////////////////////////////////////////////////////////////////
-HAL_StatusTypeDef I2cLcd::SetCursor(uint8_t x, uint8_t y)
+I2cMaster::Status I2cLcd::SetCursor(uint8_t x, uint8_t y)
 {
 	return SendByte(LCD_SETDDRAMADDR | (x + m_rowOffsets[y & 3]), true);
 }
 
 //////////////////////////////////////////////////////////////////////////////
-HAL_StatusTypeDef I2cLcd::Print(const char *str)
+I2cMaster::Status I2cLcd::Print(const char *str)
 {
-	HAL_StatusTypeDef ret = HAL_OK;
+	I2cMaster::Status ret = HAL_OK;
 	while(*str) {
 		ret = SendByte(*str++, false);
 		if(ret != HAL_OK)
