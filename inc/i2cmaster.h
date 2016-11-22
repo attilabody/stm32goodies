@@ -61,12 +61,19 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 class I2cMaster : public I2cCallbackDispatcher::II2cCallback
 {
+private:
+	enum Mode { Poll, Interrupt, Dma };
+
 public:
 	typedef HAL_StatusTypeDef Status;
 
-	I2cMaster(I2C_HandleTypeDef *hi2c);
-	inline Status Write(uint8_t data, const uint16_t address);
-	inline Status Read(uint8_t &data, const uint16_t address);
+	I2cMaster(I2C_HandleTypeDef *hi2c, I2cCallbackDispatcher &disp);
+	void SetMode(Mode m);
+
+	Status Write(const uint16_t i2cAddress, uint8_t *data, uint8_t size, Mode mode = Poll);
+	Status Read(const uint16_t i2cAddress, uint8_t *data, uint8_t size, Mode mode = Poll);
+	Status WriteMem(const uint16_t i2cAddress, uint16_t memAddr, uint8_t memAddrSize, uint8_t *data, uint16_t size, Mode mode = Poll);
+	Status ReadMem(const uint16_t i2cAddress, uint16_t memAddr, uint8_t memAddrSize, uint8_t *data, uint16_t size, Mode mode = Poll);
 
 protected:
 	virtual void I2cCallback(I2C_HandleTypeDef *hi2c, CallbackType type);
@@ -75,20 +82,7 @@ protected:
 	I2C_HandleTypeDef			*m_hi2c;
 	volatile CallbackType		m_expectedCallback = None;
 
-	enum Mode { Poll, Interrupt, Dma }	m_mode;
 	inline void WaitCallback();
 };
-
-//////////////////////////////////////////////////////////////////////////////
-inline I2cMaster::Status I2cMaster::Write(uint8_t data, const uint16_t address)
-{
-	return HAL_I2C_Master_Transmit(m_hi2c, address, &data, 1, HAL_MAX_DELAY);
-}
-
-//////////////////////////////////////////////////////////////////////////////
-inline I2cMaster::Status I2cMaster::Read(uint8_t &data, const uint16_t address)
-{
-	return HAL_I2C_Master_Receive(m_hi2c, address, &data, 1, HAL_MAX_DELAY);
-}
 
 #endif	//	_I2CMASTER_H_

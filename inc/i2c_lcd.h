@@ -10,10 +10,13 @@
 #include <stm32_hal.h>
 #include <i2cmaster.h>
 
-class I2cLcd : public I2cMaster
+class I2cLcd
 {
 public:
-	I2cLcd(I2C_HandleTypeDef *hi2c, uint16_t i2cAddress);
+	typedef HAL_StatusTypeDef Status;
+
+	I2cLcd(I2cMaster &i2c, uint16_t i2cAddress);
+	I2cLcd(const I2cLcd &rhs) = delete;
 	Status	Init();
 	Status	Clear();
 	Status	Home();
@@ -27,6 +30,7 @@ private:
 	inline Status SendByte(uint8_t b, bool isCmd);
 	inline Status SendNibble(uint8_t nibble);
 
+	I2cMaster			&m_i2c;
 	uint8_t				m_data;
 	uint16_t			m_i2cAddress;
 

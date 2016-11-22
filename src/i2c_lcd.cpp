@@ -127,8 +127,8 @@ const uint8_t I2cLcd::m_init[5] = {
 };
 
 //////////////////////////////////////////////////////////////////////////////
-I2cLcd::I2cLcd(I2C_HandleTypeDef *hi2c, uint16_t i2cAddress)
-: I2cMaster(hi2c)
+I2cLcd::I2cLcd(I2cMaster &i2c, uint16_t i2cAddress)
+: m_i2c(i2c)
 , m_data(LCD_BACKLIGHT)
 , m_i2cAddress(i2cAddress)
 {
@@ -138,7 +138,7 @@ I2cLcd::I2cLcd(I2C_HandleTypeDef *hi2c, uint16_t i2cAddress)
 // 200 us @ 100kHz
 inline I2cMaster::Status I2cLcd::SendData()
 {
-	return Write(m_data, m_i2cAddress);
+	return m_i2c.Write(m_i2cAddress, &m_data, sizeof(m_data));
 }
 
 //////////////////////////////////////////////////////////////////////////////

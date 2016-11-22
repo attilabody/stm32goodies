@@ -20,59 +20,59 @@
 //#if defined(HAVE_I2C) && defined(USE_I2C)
 #include "pcf8574.h"
 
-Pcf8574::Pcf8574(I2C_HandleTypeDef *hi2c, uint8_t i2cAddress, uint8_t initialData)
-: I2cMaster(hi2c)
+Pcf8574::Pcf8574(I2cMaster &i2c, uint8_t i2cAddress, uint8_t initialData)
+: m_i2c(i2c)
 , m_i2cAddress(i2cAddress)
 , m_data(initialData)
 {
 }
 
-I2cMaster::Status Pcf8574::Write(uint8_t value)
+Pcf8574::Status Pcf8574::Write(uint8_t value)
 {
 	m_data = value;
-	return I2cMaster::Write(m_data, m_i2cAddress);
+	return m_i2c.Write(m_i2cAddress, &m_data, sizeof(m_data));
 }
 
-I2cMaster::Status Pcf8574::Write(uint8_t pin, bool value)
+Pcf8574::Status Pcf8574::Write(uint8_t pin, bool value)
 {
 	if(!value)
 		m_data &= ~(1 << pin);
 	else
 		m_data |= (1 << pin);
 
-	return I2cMaster::Write(m_data, m_i2cAddress);
+	return m_i2c.Write(m_i2cAddress, &m_data, sizeof(m_data));
 }
 
-I2cMaster::Status Pcf8574::Read(uint8_t &value)
+Pcf8574::Status Pcf8574::Read(uint8_t &value)
 {
-	Status ret = I2cMaster::Read(m_data, m_i2cAddress);
+	Status ret = m_i2c.Read(m_i2cAddress, &m_data, sizeof(m_data));
 	value = m_data;
 	return ret;
 }
 
-I2cMaster::Status Pcf8574::Read(uint8_t pin, bool &value)
+Pcf8574::Status Pcf8574::Read(uint8_t pin, bool &value)
 {
-	I2cMaster::Status ret = I2cMaster::Read(m_data, m_i2cAddress);
+	Pcf8574::Status ret = m_i2c.Read(m_i2cAddress, &m_data, sizeof(m_data));
 	value = (m_data & (1 << pin)) != 0;
 	return ret;
 }
 
-I2cMaster::Status Pcf8574::Toggle(uint8_t pin)
+Pcf8574::Status Pcf8574::Toggle(uint8_t pin)
 {
 	m_data ^= (1 << pin);
-	return I2cMaster::Write(m_data, m_i2cAddress);
+	return m_i2c.Write(m_i2cAddress, &m_data, sizeof(m_data));
 }
 
-I2cMaster::Status Pcf8574::ShiftRight(uint8_t n)
+Pcf8574::Status Pcf8574::ShiftRight(uint8_t n)
 {
 	m_data >>= n;
-	return I2cMaster::Write(m_data, m_i2cAddress);
+	return m_i2c.Write(m_i2cAddress, &m_data, sizeof(m_data));
 }
 
-I2cMaster::Status Pcf8574::ShiftLeft(uint8_t n)
+Pcf8574::Status Pcf8574::ShiftLeft(uint8_t n)
 {
 	m_data <<= n;
-	return I2cMaster::Write(m_data, m_i2cAddress);
+	return m_i2c.Write(m_i2cAddress, &m_data, sizeof(m_data));
 }
 
 //#endif	//	#if defined(HAVE_I2C) && defined(USE_I2C)
