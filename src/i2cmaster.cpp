@@ -61,8 +61,10 @@ void I2cCallbackDispatcher::Register(II2cCallback *handler)
 //////////////////////////////////////////////////////////////////////////////
 void I2cCallbackDispatcher::Callback(I2C_HandleTypeDef *hi2c, II2cCallback::CallbackType type)
 {
-	if(m_handlers[0])
-		m_handlers[0]->I2cCallback(hi2c, type);
+	for(uint8_t u = 0; u < sizeof(m_handlers) / sizeof(m_handlers[0]); u++) {
+		if(m_handlers[u] && m_handlers[u]->I2cCallback(hi2c, type))
+			break;
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -75,17 +77,15 @@ I2cMaster::I2cMaster(I2C_HandleTypeDef *hi2c, I2cCallbackDispatcher &disp)
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void I2cMaster::I2cCallback(I2C_HandleTypeDef *hi2c, CallbackType type)
+bool I2cMaster::I2cCallback(I2C_HandleTypeDef *hi2c, CallbackType type)
 {
+	if(hi2c != m_hi2c)
+		return false;
+
 	if(m_expectedCallback == type || type == ErrorCallback ) {
 		m_expectedCallback = None;
 	}
-}
-
-//////////////////////////////////////////////////////////////////////////////
-inline void I2cMaster::WaitCallback()
-{
-	while(m_expectedCallback != None) {}
+	return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////

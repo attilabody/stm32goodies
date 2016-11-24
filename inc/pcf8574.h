@@ -40,6 +40,7 @@ protected:
 	I2cMaster			&m_i2c;
 	uint16_t			m_i2cAddress;
 	uint8_t				m_data;
+	I2cMaster::Mode		m_mode = I2cMaster::Interrupt;
 };
 
 #endif

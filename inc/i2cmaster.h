@@ -40,7 +40,7 @@ public:
 		};
 
 	private:
-		virtual void I2cCallback(I2C_HandleTypeDef *hi2c, CallbackType type) = 0;
+		virtual bool I2cCallback(I2C_HandleTypeDef *hi2c, CallbackType type) = 0;
 		friend class I2cCallbackDispatcher;
 	};
 
@@ -61,10 +61,9 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 class I2cMaster : public I2cCallbackDispatcher::II2cCallback
 {
-private:
+public:
 	enum Mode { Poll, Interrupt, Dma };
 
-public:
 	typedef HAL_StatusTypeDef Status;
 
 	I2cMaster(I2C_HandleTypeDef *hi2c, I2cCallbackDispatcher &disp);
@@ -75,14 +74,21 @@ public:
 	Status WriteMem(const uint16_t i2cAddress, uint16_t memAddr, uint8_t memAddrSize, uint8_t *data, uint16_t size, Mode mode = Poll);
 	Status ReadMem(const uint16_t i2cAddress, uint16_t memAddr, uint8_t memAddrSize, uint8_t *data, uint16_t size, Mode mode = Poll);
 
+	inline void WaitCallback();
+
 protected:
-	virtual void I2cCallback(I2C_HandleTypeDef *hi2c, CallbackType type);
+	virtual bool I2cCallback(I2C_HandleTypeDef *hi2c, CallbackType type);
 	//virtual ~I2cMaster();	//will never be destructed
 
 	I2C_HandleTypeDef			*m_hi2c;
 	volatile CallbackType		m_expectedCallback = None;
-
-	inline void WaitCallback();
 };
+
+//////////////////////////////////////////////////////////////////////////////
+inline void I2cMaster::WaitCallback()
+{
+	while(m_expectedCallback != None) {}
+}
+
 
 #endif	//	_I2CMASTER_H_
