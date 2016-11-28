@@ -27,13 +27,13 @@ Pcf8574::Pcf8574(I2cMaster &i2c, uint8_t i2cAddress, uint8_t initialData)
 {
 }
 
-Pcf8574::Status Pcf8574::Write(uint8_t value)
+I2cMaster::Status Pcf8574::Write(uint8_t value)
 {
 	m_data = value;
 	return m_i2c.Write(m_i2cAddress, &m_data, sizeof(m_data), m_mode);
 }
 
-Pcf8574::Status Pcf8574::Write(uint8_t pin, bool value)
+I2cMaster::Status Pcf8574::Write(uint8_t pin, bool value)
 {
 	if(!value)
 		m_data &= ~(1 << pin);
@@ -43,33 +43,33 @@ Pcf8574::Status Pcf8574::Write(uint8_t pin, bool value)
 	return m_i2c.Write(m_i2cAddress, &m_data, sizeof(m_data), m_mode);
 }
 
-Pcf8574::Status Pcf8574::Read(uint8_t &value)
+I2cMaster::Status Pcf8574::Read(uint8_t &value)
 {
-	Status ret = m_i2c.Read(m_i2cAddress, &m_data, sizeof(m_data));
+	I2cMaster::Status ret = m_i2c.Read(m_i2cAddress, &m_data, sizeof(m_data));
 	value = m_data;
 	return ret;
 }
 
-Pcf8574::Status Pcf8574::Read(uint8_t pin, bool &value)
+I2cMaster::Status Pcf8574::Read(uint8_t pin, bool &value)
 {
-	Pcf8574::Status ret = m_i2c.Read(m_i2cAddress, &m_data, sizeof(m_data));
+	I2cMaster::Status ret = m_i2c.Read(m_i2cAddress, &m_data, sizeof(m_data));
 	value = (m_data & (1 << pin)) != 0;
 	return ret;
 }
 
-Pcf8574::Status Pcf8574::Toggle(uint8_t pin)
+I2cMaster::Status Pcf8574::Toggle(uint8_t pin)
 {
 	m_data ^= (1 << pin);
 	return m_i2c.Write(m_i2cAddress, &m_data, sizeof(m_data), m_mode);
 }
 
-Pcf8574::Status Pcf8574::ShiftRight(uint8_t n)
+I2cMaster::Status Pcf8574::ShiftRight(uint8_t n)
 {
 	m_data >>= n;
 	return m_i2c.Write(m_i2cAddress, &m_data, sizeof(m_data), m_mode);
 }
 
-Pcf8574::Status Pcf8574::ShiftLeft(uint8_t n)
+I2cMaster::Status Pcf8574::ShiftLeft(uint8_t n)
 {
 	m_data <<= n;
 	return m_i2c.Write(m_i2cAddress, &m_data, sizeof(m_data), m_mode);

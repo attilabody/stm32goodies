@@ -85,6 +85,7 @@ bool I2cMaster::I2cCallback(I2C_HandleTypeDef *hi2c, CallbackType type)
 
 	if(m_expectedCallback == type || type == ErrorCallback ) {
 		m_expectedCallback = None;
+		m_callbackError = type == ErrorCallback ? HAL_I2C_GetError(hi2c) : HAL_I2C_ERROR_NONE;
 	}
 	return true;
 }
@@ -103,7 +104,8 @@ I2cMaster::Status I2cMaster::Write(const uint16_t i2cAddress, uint8_t *data, uin
 //		}
 //	}
 
-	WaitCallback();
+	if(WaitCallback() != HAL_I2C_ERROR_NONE)
+		return HAL_ERROR;
 	if(mode == Poll) {
 		return HAL_I2C_Master_Transmit(m_hi2c, i2cAddress, data, size, HAL_MAX_DELAY);
 	} else {
@@ -119,7 +121,8 @@ I2cMaster::Status I2cMaster::Write(const uint16_t i2cAddress, uint8_t *data, uin
 //////////////////////////////////////////////////////////////////////////////
 I2cMaster::Status I2cMaster::Read(const uint16_t i2cAddress, uint8_t *data, uint8_t size, Mode mode)
 {
-	WaitCallback();
+	if(WaitCallback() != HAL_I2C_ERROR_NONE)
+		return HAL_ERROR;
 	if(mode == Poll) {
 		return HAL_I2C_Master_Receive(m_hi2c, i2cAddress, data, size, HAL_MAX_DELAY);
 	} else {
@@ -135,7 +138,8 @@ I2cMaster::Status I2cMaster::Read(const uint16_t i2cAddress, uint8_t *data, uint
 //////////////////////////////////////////////////////////////////////////////
 I2cMaster::Status I2cMaster::WriteMem(const uint16_t i2cAddress, uint16_t memAddr, uint8_t memAddrSize, uint8_t *data, uint16_t size, Mode mode)
 {
-	WaitCallback();
+	if(WaitCallback() != HAL_I2C_ERROR_NONE)
+		return HAL_ERROR;
 	if(mode == Poll) {
 		return HAL_I2C_Mem_Write(m_hi2c, i2cAddress, memAddr, memAddrSize, data, size, HAL_MAX_DELAY);
 	} else {
@@ -151,7 +155,8 @@ I2cMaster::Status I2cMaster::WriteMem(const uint16_t i2cAddress, uint16_t memAdd
 //////////////////////////////////////////////////////////////////////////////
 I2cMaster::Status I2cMaster::ReadMem(const uint16_t i2cAddress, uint16_t memAddr, uint8_t memAddrSize, uint8_t *data, uint16_t size, Mode mode)
 {
-	WaitCallback();
+	if(WaitCallback() != HAL_I2C_ERROR_NONE)
+		return HAL_ERROR;
 	if(mode == Poll) {
 		return HAL_I2C_Mem_Read(m_hi2c, i2cAddress, memAddr, memAddrSize, data, size, HAL_MAX_DELAY);
 	} else {

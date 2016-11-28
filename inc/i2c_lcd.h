@@ -13,22 +13,20 @@
 class I2cLcd
 {
 public:
-	typedef HAL_StatusTypeDef Status;
-
 	I2cLcd(I2cMaster &i2c, uint16_t i2cAddress);
 	I2cLcd(const I2cLcd &rhs) = delete;
-	Status	Init();
-	Status	Clear();
-	Status	Home();
-	Status	SetCursor(uint8_t x, uint8_t y);
-	Status	Print(const char* str);
+	I2cMaster::Status	Init();
+	I2cMaster::Status	Clear();
+	I2cMaster::Status	Home();
+	I2cMaster::Status	SetCursor(uint8_t x, uint8_t y);
+	I2cMaster::Status	Print(const char* str);
 	size_t	Print(unsigned int i, bool hex = false);
 
 private:
-	inline Status SendData();
-	inline Status Epulse();
-	inline Status SendByte(uint8_t b, bool isCmd);
-	inline Status SendNibble(uint8_t nibble);
+	inline I2cMaster::Status SendData();
+	inline I2cMaster::Status Epulse();
+	inline I2cMaster::Status SendByte(uint8_t b, bool isCmd);
+	inline I2cMaster::Status SendNibble(uint8_t nibble);
 
 	I2cMaster			&m_i2c;
 	uint8_t				m_data;

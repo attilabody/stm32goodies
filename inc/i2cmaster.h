@@ -74,7 +74,8 @@ public:
 	Status WriteMem(const uint16_t i2cAddress, uint16_t memAddr, uint8_t memAddrSize, uint8_t *data, uint16_t size, Mode mode = Poll);
 	Status ReadMem(const uint16_t i2cAddress, uint16_t memAddr, uint8_t memAddrSize, uint8_t *data, uint16_t size, Mode mode = Poll);
 
-	inline void WaitCallback();
+	inline uint32_t WaitCallback();
+	inline uint32_t	GetCallbackError() { return m_callbackError; }
 
 protected:
 	virtual bool I2cCallback(I2C_HandleTypeDef *hi2c, CallbackType type);
@@ -82,12 +83,14 @@ protected:
 
 	I2C_HandleTypeDef			*m_hi2c;
 	volatile CallbackType		m_expectedCallback = None;
+	uint32_t 					m_callbackError = HAL_I2C_ERROR_NONE;
 };
 
 //////////////////////////////////////////////////////////////////////////////
-inline void I2cMaster::WaitCallback()
+inline uint32_t I2cMaster::WaitCallback()
 {
 	while(m_expectedCallback != None) {}
+	return m_callbackError;
 }
 
 

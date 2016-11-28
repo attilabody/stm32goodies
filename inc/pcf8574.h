@@ -19,22 +19,20 @@
 class Pcf8574
 {
 public:
-	typedef HAL_StatusTypeDef Status;
-
 	Pcf8574(I2cMaster &i2c, uint8_t i2cAddress, uint8_t initialData = 0xff);
 
-	Status	Read(uint8_t &value);
-	Status	Read(uint8_t pin, bool &value);
+	I2cMaster::Status	Read(uint8_t &value);
+	I2cMaster::Status	Read(uint8_t pin, bool &value);
 
 	operator		uint8_t() const { return m_data; }
 	inline uint8_t	GetData() const { return m_data; }
 
-	Status	Write(uint8_t value);
-	Status	Write(uint8_t pin, bool value);
+	I2cMaster::Status	Write(uint8_t value);
+	I2cMaster::Status	Write(uint8_t pin, bool value);
 
-	Status	Toggle(uint8_t pin);
-	Status	ShiftRight(uint8_t n = 1);
-	Status	ShiftLeft(uint8_t n = 1);
+	I2cMaster::Status	Toggle(uint8_t pin);
+	I2cMaster::Status	ShiftRight(uint8_t n = 1);
+	I2cMaster::Status	ShiftLeft(uint8_t n = 1);
 
 protected:
 	I2cMaster			&m_i2c;
