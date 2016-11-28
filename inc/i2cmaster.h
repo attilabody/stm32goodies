@@ -48,7 +48,7 @@ public:
 	void Callback(I2C_HandleTypeDef *hi2c, II2cCallback::CallbackType type);
 
 private:
-	I2cCallbackDispatcher() {};
+	I2cCallbackDispatcher() {}
 	I2cCallbackDispatcher(const I2cCallbackDispatcher &rhs) = delete;
 
 	static I2cCallbackDispatcher	m_instance;
@@ -66,7 +66,7 @@ public:
 
 	typedef HAL_StatusTypeDef Status;
 
-	I2cMaster(I2C_HandleTypeDef *hi2c, I2cCallbackDispatcher &disp);
+	I2cMaster(I2C_HandleTypeDef *hi2c, I2cCallbackDispatcher *disp = nullptr);
 	void SetMode(Mode m);
 
 	Status Write(const uint16_t i2cAddress, uint8_t *data, uint8_t size, Mode mode = Poll);

@@ -9,7 +9,7 @@
 #define INC_STM32_HAL_H_
 
 #ifdef STM32F0
-#include <stm32f0xx_nucleo_32.h>
+#include <stm32f0xx_hal.h>
 #elif defined(STM32F1)
 #include <stm32f1xx_hal.h>
 #endif
