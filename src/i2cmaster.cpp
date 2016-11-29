@@ -103,18 +103,21 @@ I2cMaster::Status I2cMaster::Write(const uint16_t i2cAddress, uint8_t *data, uin
 //
 //		}
 //	}
-
 	if(WaitCallback() != HAL_I2C_ERROR_NONE)
 		return HAL_ERROR;
 	if(mode == Poll) {
 		return HAL_I2C_Master_Transmit(m_hi2c, i2cAddress, data, size, HAL_MAX_DELAY);
 	} else {
-		m_expectedCallback = MasterTxCpltCallback;
-		if(mode == Interrupt) {
-			return HAL_I2C_Master_Transmit_IT(m_hi2c, i2cAddress, data, size);
+		Status ret;
+		if(mode == It) {
+			ret = HAL_I2C_Master_Transmit_IT(m_hi2c, i2cAddress, data, size);
 		} else {
-			return HAL_I2C_Master_Transmit_DMA(m_hi2c, i2cAddress, data, size);
+			ret = HAL_I2C_Master_Transmit_DMA(m_hi2c, i2cAddress, data, size);
 		}
+		if(ret == HAL_OK) {
+			m_expectedCallback = MasterTxCpltCallback;
+		}
+		return ret;
 	}
 }
 
@@ -126,12 +129,16 @@ I2cMaster::Status I2cMaster::Read(const uint16_t i2cAddress, uint8_t *data, uint
 	if(mode == Poll) {
 		return HAL_I2C_Master_Receive(m_hi2c, i2cAddress, data, size, HAL_MAX_DELAY);
 	} else {
-		m_expectedCallback = MasterRxCpltCallback;
-		if(mode == Interrupt) {
-			return HAL_I2C_Master_Receive_IT(m_hi2c, i2cAddress, data, size);
+		Status ret;
+		if(mode == It) {
+			ret = HAL_I2C_Master_Receive_IT(m_hi2c, i2cAddress, data, size);
 		} else {
-			return HAL_I2C_Master_Receive_DMA(m_hi2c, i2cAddress, data, size);
+			ret = HAL_I2C_Master_Receive_DMA(m_hi2c, i2cAddress, data, size);
 		}
+		if(ret == HAL_OK) {
+			m_expectedCallback = MasterRxCpltCallback;
+		}
+		return ret;
 	}
 }
 
@@ -143,12 +150,16 @@ I2cMaster::Status I2cMaster::WriteMem(const uint16_t i2cAddress, uint16_t memAdd
 	if(mode == Poll) {
 		return HAL_I2C_Mem_Write(m_hi2c, i2cAddress, memAddr, memAddrSize, data, size, HAL_MAX_DELAY);
 	} else {
-		m_expectedCallback = MemTxCpltCallback;
-		if(mode == Interrupt) {
-			return HAL_I2C_Mem_Write_IT(m_hi2c, i2cAddress, memAddr, memAddrSize, data, size);
+		Status ret;
+		if(mode == It) {
+			ret = HAL_I2C_Mem_Write_IT(m_hi2c, i2cAddress, memAddr, memAddrSize, data, size);
 		} else {
-			return HAL_I2C_Mem_Write_IT(m_hi2c, i2cAddress, memAddr, memAddrSize, data, size);
+			ret = HAL_I2C_Mem_Write_DMA(m_hi2c, i2cAddress, memAddr, memAddrSize, data, size);
 		}
+		if(ret == HAL_OK) {
+			m_expectedCallback = MemTxCpltCallback;
+		}
+		return ret;
 	}
 }
 
@@ -160,11 +171,15 @@ I2cMaster::Status I2cMaster::ReadMem(const uint16_t i2cAddress, uint16_t memAddr
 	if(mode == Poll) {
 		return HAL_I2C_Mem_Read(m_hi2c, i2cAddress, memAddr, memAddrSize, data, size, HAL_MAX_DELAY);
 	} else {
-		m_expectedCallback = MemTxCpltCallback;
-		if(mode == Interrupt) {
-			return HAL_I2C_Mem_Read_IT(m_hi2c, i2cAddress, memAddr, memAddrSize, data, size);
+		Status ret;
+		if(mode == It) {
+			ret = HAL_I2C_Mem_Read_IT(m_hi2c, i2cAddress, memAddr, memAddrSize, data, size);
 		} else {
-			return HAL_I2C_Mem_Read_IT(m_hi2c, i2cAddress, memAddr, memAddrSize, data, size);
+			ret = HAL_I2C_Mem_Read_DMA(m_hi2c, i2cAddress, memAddr, memAddrSize, data, size);
 		}
+		if(ret == HAL_OK) {
+			m_expectedCallback = MemRxCpltCallback;
+		}
+		return ret;
 	}
 }

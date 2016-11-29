@@ -62,7 +62,7 @@ private:
 class I2cMaster : public I2cCallbackDispatcher::II2cCallback
 {
 public:
-	enum Mode { Poll, Interrupt, Dma };
+	enum Mode { Poll, It, Dma };
 
 	typedef HAL_StatusTypeDef Status;
 
