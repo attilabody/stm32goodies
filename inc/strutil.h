@@ -9,6 +9,7 @@
 #define INC_STRUTIL_H_
 
 #include <stddef.h>
+#include <inttypes.h>
 
 //////////////////////////////////////////////////////////////////////////////
 size_t uitodec( char* buffer, unsigned int data);
@@ -23,6 +24,12 @@ inline void strrev(char *first, char *last)
 		*first++ = *last;
 		*last-- = tmp;
 	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+inline char tochr(const uint8_t in, const bool upper)
+{
+	return in + ((in < 10) ? '0' : (upper ? 'A' : 'a') - 10);
 }
 
 #endif /* INC_STRUTIL_H_ */

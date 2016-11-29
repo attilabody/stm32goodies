@@ -8,12 +8,6 @@
 #include <stdint.h>
 
 //////////////////////////////////////////////////////////////////////////////
-inline char tochr(uint8_t in, bool upper)
-{
-	return in + (in < 10) ? '0' : (upper ? 'A' : 'a') - 10;
-}
-
-//////////////////////////////////////////////////////////////////////////////
 size_t uitodec( char* buffer, unsigned int data)
 {
 	char *b2 = buffer;
@@ -39,6 +33,7 @@ size_t uitodec( char* buffer, unsigned int data)
 size_t uitohex( char* buffer, unsigned int data)
 {
 	char *b2 = buffer;
+
 	if(!data) {
 		*b2++ = '0';
 		*b2 = '\0';
@@ -47,8 +42,8 @@ size_t uitohex( char* buffer, unsigned int data)
 
 	while(data) {
 		uint8_t curval = data & 0x0f;
-		*b2++ = tochr(curval, false);
-		data /= 16;
+		*b2++ = tochr(curval, true);
+		data >>= 4;
 	}
 	size_t ret = b2 - buffer;
 
