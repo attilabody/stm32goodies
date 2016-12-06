@@ -76,17 +76,17 @@ public:
 	static DbgUsart& Instance() { return m_instance; }
 	void SetBlock(bool block) { m_block = block; }
 
-	size_t Send(void *buffer, size_t count);
-	size_t Send(char c);
-	size_t Send(bool b);
-	size_t Send(uint32_t l, bool hex = false, bool prefix = true, bool zeroes = false);
-	size_t Send(uint16_t i, bool hex = false, bool prefix = true, bool zeroes = false);
-	size_t Send(uint8_t i, bool hex = false, bool prefix = true);
-	size_t Send(const char *str);
+	uint16_t Send(void *buffer, uint16_t count);
+	uint16_t Send(char c);
+	uint16_t Send(bool b);
+	uint16_t Send(uint32_t l, bool hex = false, bool prefix = true, bool zeroes = false);
+	uint16_t Send(uint16_t i, bool hex = false, bool prefix = true, bool zeroes = false);
+	uint16_t Send(uint8_t i, bool hex = false, bool prefix = true);
+	uint16_t Send(const char *str);
 
 private:
 	DbgUsart() = default;
-	size_t FillTxBuffer(char *buffer, size_t count);
+	uint16_t FillTxBuffer(uint8_t *buffer, uint16_t count);
 	virtual bool UsartCallback(UART_HandleTypeDef *huart, CallbackType type);
 
 	static DbgUsart		m_instance;
@@ -98,7 +98,7 @@ private:
 
 	volatile uint16_t	m_txStart = 0;
 	volatile uint16_t	m_txCount = 0;
-	volatile bool		m_txPending = false;
+	volatile uint16_t	m_chunkSize = 0;
 };
 
 #endif /* DBGSERIAL_H_ */
