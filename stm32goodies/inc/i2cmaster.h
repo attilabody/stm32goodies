@@ -2,6 +2,7 @@
 #define _I2CMASTER_H_
 #include <stm32_hal.h>
 #include <inttypes.h>
+#include <string.h>
 
 extern "C" {
 void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c);
@@ -44,16 +45,26 @@ public:
 		friend class I2cCallbackDispatcher;
 	};
 
-	void Register(II2cCallback *handler);
-	void Callback(I2C_HandleTypeDef *hi2c, II2cCallback::CallbackType type);
+	bool Register(II2cCallback *handler);
 
 private:
-	I2cCallbackDispatcher() {}
+	I2cCallbackDispatcher() { memset(&m_handlers, 0, sizeof(m_handlers)); }
 	I2cCallbackDispatcher(const I2cCallbackDispatcher &rhs) = delete;
+
+	void Callback(I2C_HandleTypeDef *hi2c, II2cCallback::CallbackType type);
 
 	static I2cCallbackDispatcher	m_instance;
 
-	II2cCallback 					*m_handlers[2] {0, 0};
+	II2cCallback 					*m_handlers[2];
+
+	friend void ::HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c);
+	friend void ::HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *hi2c);
+	friend void ::HAL_I2C_SlaveTxCpltCallback(I2C_HandleTypeDef *hi2c);
+	friend void ::HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c);
+	friend void ::HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c);
+	friend void ::HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c);
+	friend void ::HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c);
+
 };
 
 //////////////////////////////////////////////////////////////////////////////

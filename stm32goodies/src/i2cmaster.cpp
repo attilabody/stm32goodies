@@ -17,7 +17,6 @@ void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *hi2c)
 	I2cCallbackDispatcher::Instance().Callback(hi2c, I2cCallbackDispatcher::II2cCallback::MasterRxCpltCallback);
 }
 
-
 void HAL_I2C_SlaveTxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
 	I2cCallbackDispatcher::Instance().Callback(hi2c, I2cCallbackDispatcher::II2cCallback::SlaveTxCpltCallback);
@@ -50,19 +49,28 @@ void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c)
 I2cCallbackDispatcher I2cCallbackDispatcher::m_instance;
 
 //////////////////////////////////////////////////////////////////////////////
-void I2cCallbackDispatcher::Register(II2cCallback *handler)
+bool I2cCallbackDispatcher::Register(II2cCallback *handler)
 {
-	if(!m_handlers[0])
-		m_handlers[0] = handler;
-	else if(!m_handlers[1])
-		m_handlers[1] = handler;
+	decltype(handler)*	hp = nullptr;
+
+	for( auto& h : m_handlers) {
+		if( h == handler )
+			return true;
+		if(!hp && !h)
+			hp = &h;
+	}
+	if(hp) {
+		*hp = handler;
+		return true;
+	}
+	return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 void I2cCallbackDispatcher::Callback(I2C_HandleTypeDef *hi2c, II2cCallback::CallbackType type)
 {
-	for(uint8_t u = 0; u < sizeof(m_handlers) / sizeof(m_handlers[0]); u++) {
-		if(m_handlers[u] && m_handlers[u]->I2cCallback(hi2c, type))
+	for(auto& handler : m_handlers) {
+		if(handler && handler->I2cCallback(hi2c, type))
 			break;
 	}
 }
@@ -93,16 +101,6 @@ bool I2cMaster::I2cCallback(I2C_HandleTypeDef *hi2c, CallbackType type)
 //////////////////////////////////////////////////////////////////////////////
 I2cMaster::Status I2cMaster::Write(const uint16_t i2cAddress, uint8_t *data, uint8_t size, Mode mode)
 {
-//	WaitCallback();
-//	if(mode == Poll) {
-//	} else {
-//		m_expectedCallback = MasterTxCpltCallback;
-//		if(mode == Interrupt) {
-//
-//		} else {
-//
-//		}
-//	}
 	if(WaitCallback() != HAL_I2C_ERROR_NONE)
 		return HAL_ERROR;
 	if(mode == Poll) {
