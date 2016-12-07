@@ -12,8 +12,8 @@
 #include <inttypes.h>
 
 //////////////////////////////////////////////////////////////////////////////
-size_t uitodec( char* buffer, unsigned int data);
-size_t uitohex( char* buffer, unsigned int data);
+size_t uitodec(unsigned int data, char* buffer);
+size_t uitohex(unsigned int data, char* buffer);
 
 //////////////////////////////////////////////////////////////////////////////
 inline void strrev(char *first, char *last)
@@ -27,7 +27,7 @@ inline void strrev(char *first, char *last)
 }
 
 //////////////////////////////////////////////////////////////////////////////
-inline char tochr(const uint8_t in, const bool upper)
+inline char tochr(const uint8_t in, const bool upper = true)
 {
 	return in + ((in < 10) ? '0' : (upper ? 'A' : 'a') - 10);
 }

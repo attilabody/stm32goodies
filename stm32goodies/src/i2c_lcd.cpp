@@ -197,7 +197,7 @@ I2cMaster::Status I2cLcd::Print(const char *str)
 size_t I2cLcd::Print(unsigned int u, bool hex)
 {
 	char	buffer[11];
-	size_t ret = hex ? uitohex(buffer, u) : uitodec(buffer, u);
+	size_t ret = hex ? uitohex(u, buffer) : uitodec(u, buffer);
 	Print(buffer);
 	return ret;
 }

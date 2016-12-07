@@ -8,7 +8,7 @@
 #include <stdint.h>
 
 //////////////////////////////////////////////////////////////////////////////
-size_t uitodec( char* buffer, unsigned int data)
+size_t uitodec( unsigned int data, char* buffer)
 {
 	char *b2 = buffer;
 	if(!data) {
@@ -30,7 +30,7 @@ size_t uitodec( char* buffer, unsigned int data)
 }
 
 //////////////////////////////////////////////////////////////////////////////
-size_t uitohex( char* buffer, unsigned int data)
+size_t uitohex(unsigned int data, char* buffer)
 {
 	char *b2 = buffer;
 
