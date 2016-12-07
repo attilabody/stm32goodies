@@ -5,8 +5,8 @@
  *      Author: compi
  */
 
-#ifndef DBGSERIAL_H_
-#define DBGSERIAL_H_
+#ifndef USART_H
+#define USART_H
 
 #include <stddef.h>
 #include <string.h>
@@ -41,7 +41,7 @@ public:
 			ErrorCallback
 		};
 	private:
-		virtual bool UsartCallback(UART_HandleTypeDef *hi2c, CallbackType type) = 0;
+		virtual bool UsartCallback(UART_HandleTypeDef *huart, CallbackType type) = 0;
 		friend class UsartCallbackDispatcher;
 	};
 	bool Register(IUsartCallback *handler);

@@ -7,7 +7,12 @@
 
 #include <usart.h>
 #include <stdlib.h>
+#include <itlock.h>
+#include <strutil.h>
 
+//////////////////////////////////////////////////////////////////////////////
+//
+//////////////////////////////////////////////////////////////////////////////
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
 	UsartCallbackDispatcher::Instance().Callback(huart, UsartCallbackDispatcher::IUsartCallback::TxCpltCallback);
@@ -15,21 +20,21 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 
 void HAL_UART_TxHalfCpltCallback(UART_HandleTypeDef *huart)
 {
-
+	UsartCallbackDispatcher::Instance().Callback(huart, UsartCallbackDispatcher::IUsartCallback::TxHalfCpltCallback);
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-
+	UsartCallbackDispatcher::Instance().Callback(huart, UsartCallbackDispatcher::IUsartCallback::RxCpltCallback);
 }
 void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart)
 {
-
+	UsartCallbackDispatcher::Instance().Callback(huart, UsartCallbackDispatcher::IUsartCallback::RxHalfCpltCallback);
 }
 
 void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 {
-
+	UsartCallbackDispatcher::Instance().Callback(huart, UsartCallbackDispatcher::IUsartCallback::ErrorCallback);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -86,31 +91,32 @@ bool DbgUsart::Init(UsartCallbackDispatcher &disp, UART_HandleTypeDef *huart, ui
 ////////////////////////////////////////////////////////////////////
 uint16_t DbgUsart::FillTxBuffer(uint8_t *buffer, uint16_t count)
 {
-	uint32_t			pm;
 	HAL_StatusTypeDef	st;
-	uint16_t   			tocopy, copied = 0;
+	uint16_t   			free, freestart, tocopy, copied = 0;
 
-	pm = __get_PRIMASK();
-	__disable_irq();
-	uint16_t freestart = m_txStart + m_txCount;
-	//if(freestart >= m_size) freestart -= m_size;
+	{
+		ItLock	lock;
+		freestart = m_txStart + m_txCount;
+		free = m_size - m_txCount;
+	}
 	freestart -= (freestart >= m_size) ? m_size : 0;
-	uint16_t free = m_size - m_txCount;
 	if(count > free) count = free;
 	tocopy = freestart + count > m_size ? m_size - freestart : count;
-	if(!pm) __enable_irq();
 
 	memcpy(m_buffer + freestart, buffer, tocopy);
 
-	__disable_irq();
-	if(!m_txCount) {
-		m_chunkSize = tocopy;
-		st = HAL_UART_Transmit_IT(m_huart, m_buffer + freestart, tocopy);
+	{
+		ItLock	lock;
+		if(!m_txCount) {
+			lock.Release();
+			m_chunkSize = tocopy;
+			st = HAL_UART_Transmit_IT(m_huart, m_buffer + freestart, tocopy);
+		}
+		copied = tocopy;
+		count -= tocopy;
+		lock.Acquire();
+		m_txCount += tocopy;
 	}
-	copied = tocopy;
-	count -= tocopy;
-	m_txCount += tocopy;
-	if(!pm) __enable_irq();
 
 	if(!count)
 		return copied;
@@ -118,9 +124,14 @@ uint16_t DbgUsart::FillTxBuffer(uint8_t *buffer, uint16_t count)
 	buffer += tocopy;
 	memcpy(m_buffer, buffer, count);
 
-	__disable_irq();
-	m_txCount += count;
-	if(!pm) __enable_irq();
+	bool schedule;
+	{
+		ItLock lock;
+		schedule = !m_txCount;
+		m_txCount += count;
+	}
+	if(schedule)	//	unlikely corner case
+		st = HAL_UART_Transmit_IT(m_huart, m_buffer, count);
 
 	return copied + count;
 }
@@ -139,7 +150,8 @@ bool DbgUsart::UsartCallback(UART_HandleTypeDef *huart, CallbackType type)
 		if(m_txStart >= m_size)
 			m_txStart -= m_size;
 		m_chunkSize = m_txStart + m_txCount > m_size ? m_size - m_txStart : m_txCount;
-		st = HAL_UART_Transmit_IT(m_huart, m_buffer + m_txStart, m_chunkSize);
+		if(m_chunkSize)
+			st = HAL_UART_Transmit_IT(m_huart, m_buffer + m_txStart, m_chunkSize);
 	}
 	return true;
 }
@@ -150,19 +162,111 @@ uint16_t  DbgUsart::Send(void *buffer, uint16_t count)
 	uint16_t  sent = 0, copied;
 
 	while(count) {
-		while(m_txCount == sizeof(m_buffer))
+		while(m_txCount == m_size)
 			if(!m_block)
 				return sent;
 
-		//__HAL_UART_DISABLE_IT(m_huart, UART_IT_TXE);
 		copied = FillTxBuffer((uint8_t*)buffer, count);
-		//__HAL_UART_ENABLE_IT(m_huart, UART_IT_TXE);
-		buffer = (unsigned char *)buffer + copied;
+		buffer = (uint8_t*)buffer + copied;
 		count -= copied;
 		sent += copied;
 	}
 
 	return sent;
+}
+
+////////////////////////////////////////////////////////////////////
+uint16_t  DbgUsart::Send(char c)
+{
+	return Send(&c, 1);
+}
+
+
+////////////////////////////////////////////////////////////////////
+uint16_t DbgUsart::Send(bool b)
+{
+	return Send(b ? '1' : '0');
+}
+
+
+////////////////////////////////////////////////////////////////////
+uint16_t DbgUsart::Send(uint32_t u, bool hex, bool prefix, bool zeroes)
+{
+	if(hex) {
+		uint16_t ret = 0;
+		if(prefix)
+			ret += Send("0x");
+		uint8_t	*pb = ((uint8_t *)((&u) + 1) - 1);
+		uint8_t b;
+		for(uint8_t byte = 0; byte < sizeof(u); ++byte) {
+			b = *pb >> 4;
+			if(zeroes || b)
+				ret += Send(tochr(b));
+			if(b) zeroes = true;
+			b = *pb & 0xF;
+			if(zeroes || b || !byte)
+				ret += Send(tochr(b));
+			--pb;
+		}
+		return ret;
+	} else {
+		char buffer[13];
+		uitodec(u, buffer);
+		return Send(buffer, strlen(buffer));
+	}
+}
+
+
+////////////////////////////////////////////////////////////////////
+uint16_t DbgUsart::Send(uint16_t u, bool hex, bool prefix, bool zeroes)
+{
+	if(hex) {
+		uint16_t  ret = 0;
+		if(prefix)
+			ret += Send("0x");
+		uint8_t	*pb = ((uint8_t *)((&u) + 1) - 1);
+		uint8_t b;
+		for(uint8_t byte = 0; byte < sizeof(u); ++byte) {
+			b = *pb >> 4;
+			if(zeroes || b)
+				ret += Send(tochr(b));
+			if(b) zeroes = true;
+			b = *pb & 0xF;
+			if(zeroes || b || !byte)
+				ret += Send(tochr(b));
+			--pb;
+		}
+		return ret;
+	} else {
+		char    buffer[8];
+		uitodec(u, buffer);
+		return Send(buffer, strlen(buffer));
+	}
+}
+
+
+////////////////////////////////////////////////////////////////////
+uint16_t DbgUsart::Send(uint8_t u, bool hex, bool prefix)
+{
+	if(hex) {
+		uint16_t  ret = 0;
+		if(prefix)
+			ret += Send("0x");
+		ret += Send(tochr(u >> 4));
+		ret += Send(tochr(u & 0x0F));
+		return ret;
+	} else {
+		char    buffer[4];
+		uitodec(u, buffer);
+		return Send(buffer, strlen(buffer));
+	}
+}
+
+
+////////////////////////////////////////////////////////////////////
+uint16_t DbgUsart::Send(const char *str)
+{
+	return Send((void *)str, strlen(str));
 }
 
 
