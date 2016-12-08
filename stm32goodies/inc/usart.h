@@ -76,7 +76,7 @@ public:
 	static DbgUsart& Instance() { return m_instance; }
 	void SetBlock(bool block) { m_block = block; }
 
-	uint16_t Send(void *buffer, uint16_t count);
+	uint16_t Send(const void *buffer, uint16_t count);
 	uint16_t Send(char c);
 	uint16_t Send(bool b);
 	uint16_t Send(uint32_t l, bool hex = false, bool prefix = true, bool zeroes = false);
@@ -86,7 +86,7 @@ public:
 
 private:
 	DbgUsart() = default;
-	uint16_t FillTxBuffer(uint8_t *buffer, uint16_t count);
+	uint16_t FillTxBuffer(const uint8_t *buffer, uint16_t count);
 	virtual bool UsartCallback(UART_HandleTypeDef *huart, CallbackType type);
 
 	static DbgUsart		m_instance;

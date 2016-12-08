@@ -40,6 +40,9 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
+UsartCallbackDispatcher UsartCallbackDispatcher::m_instance;
+
+//////////////////////////////////////////////////////////////////////////////
 bool UsartCallbackDispatcher::Register(IUsartCallback *handler)
 {
 	decltype(handler)*	hp = nullptr;
@@ -69,8 +72,7 @@ void UsartCallbackDispatcher::Callback(UART_HandleTypeDef *huart, IUsartCallback
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
-UsartCallbackDispatcher UsartCallbackDispatcher::m_instance;
-
+DbgUsart DbgUsart::m_instance;
 
 ////////////////////////////////////////////////////////////////////
 bool DbgUsart::Init(UsartCallbackDispatcher &disp, UART_HandleTypeDef *huart, uint8_t *buffer, uint16_t size, bool block)
@@ -89,7 +91,7 @@ bool DbgUsart::Init(UsartCallbackDispatcher &disp, UART_HandleTypeDef *huart, ui
 }
 
 ////////////////////////////////////////////////////////////////////
-uint16_t DbgUsart::FillTxBuffer(uint8_t *buffer, uint16_t count)
+uint16_t DbgUsart::FillTxBuffer(const uint8_t *buffer, uint16_t count)
 {
 	HAL_StatusTypeDef	st;
 	uint16_t   			free, freestart, tocopy, copied = 0;
@@ -157,7 +159,7 @@ bool DbgUsart::UsartCallback(UART_HandleTypeDef *huart, CallbackType type)
 }
 
 ////////////////////////////////////////////////////////////////////
-uint16_t  DbgUsart::Send(void *buffer, uint16_t count)
+uint16_t  DbgUsart::Send(const void *buffer, uint16_t count)
 {
 	uint16_t  sent = 0, copied;
 
