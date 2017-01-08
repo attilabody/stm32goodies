@@ -8,10 +8,10 @@
 #ifndef USART_H
 #define USART_H
 
+#include <stm32_hal.h>
 #include <stddef.h>
 #include <string.h>
 #include <inttypes.h>
-#include "stm32_hal.h"
 
 #define USART_COUNT 3
 
