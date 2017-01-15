@@ -13,8 +13,8 @@
 #if !defined(_PCF8574_H)// && defined(HAVE_I2C) && defined(USE_I2C)
 #define _PCF8574_H
 #include <stdint.h>
-#include <stm32_hal.h>
-#include <i2cmaster.h>
+#include <sg/stm32_hal.h>
+#include <sg/i2cmaster.h>
 
 class Pcf8574
 {

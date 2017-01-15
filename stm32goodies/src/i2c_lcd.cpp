@@ -7,11 +7,11 @@
 
 //#include "config.h"
 //#if defined(HAVE_I2C) && defined(USE_I2C)
-#include <stm32_hal.h>
+#include <sg/stm32_hal.h>
 //#include <util/delay.h>
 
-#include "i2c_lcd.h"
-#include "strutil.h"
+#include "sg/i2c_lcd.h"
+#include "sg/strutil.h"
 
 // commands
 #define LCD_CLEARDISPLAY 0x01

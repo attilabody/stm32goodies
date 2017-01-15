@@ -5,7 +5,7 @@
  *      Author: compi
  */
 
-#include <i2cmaster.h>
+#include <sg/i2cmaster.h>
 
 void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c)
 {

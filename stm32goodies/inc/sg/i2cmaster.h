@@ -1,6 +1,6 @@
 #ifndef _I2CMASTER_H_
 #define _I2CMASTER_H_
-#include <stm32_hal.h>
+#include <sg/stm32_hal.h>
 #include <inttypes.h>
 #include <string.h>
 

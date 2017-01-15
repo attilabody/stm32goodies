@@ -8,7 +8,7 @@
 #ifndef ITLOCK_H_
 #define ITLOCK_H_
 
-#include <stm32_hal.h>
+#include <sg/stm32_hal.h>
 
 class ItLock
 {

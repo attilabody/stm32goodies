@@ -5,10 +5,10 @@
  *      Author: compi
  */
 
-#include <usart.h>
+#include <sg/usart.h>
 #include <stdlib.h>
-#include <itlock.h>
-#include <strutil.h>
+#include <sg/itlock.h>
+#include <sg/strutil.h>
 
 //////////////////////////////////////////////////////////////////////////////
 //

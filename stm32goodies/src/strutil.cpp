@@ -4,7 +4,7 @@
  *  Created on: Nov 28, 2016
  *      Author: compi
  */
-#include "strutil.h"
+#include "sg/strutil.h"
 #include <stdint.h>
 
 //////////////////////////////////////////////////////////////////////////////

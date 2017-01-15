@@ -7,8 +7,8 @@
 #if !defined(I2C_LCD_H_)// && defined(HAVE_I2C) && defined(USE_I2C)
 #define I2C_LCD_H_
 
-#include <stm32_hal.h>
-#include <i2cmaster.h>
+#include <sg/stm32_hal.h>
+#include <sg/i2cmaster.h>
 
 class I2cLcd
 {

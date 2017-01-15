@@ -8,7 +8,7 @@
 #ifndef USART_H
 #define USART_H
 
-#include <stm32_hal.h>
+#include <sg/stm32_hal.h>
 #include <stddef.h>
 #include <string.h>
 #include <inttypes.h>
