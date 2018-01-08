@@ -20,6 +20,8 @@
 //#if defined(HAVE_I2C) && defined(USE_I2C)
 #include "sg/pcf8574.h"
 
+using namespace sg;
+
 Pcf8574::Pcf8574(I2cMaster &i2c, uint8_t i2cAddress, uint8_t initialData)
 : m_i2c(i2c)
 , m_i2cAddress(i2cAddress)

@@ -14,6 +14,8 @@ void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c);
 void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c);
 }
 
+namespace sg {
+
 //////////////////////////////////////////////////////////////////////////////
 //
 //////////////////////////////////////////////////////////////////////////////
@@ -103,5 +105,6 @@ inline uint32_t I2cMaster::WaitCallback()
 	return m_callbackError;
 }
 
+}	//	namespace sg
 
 #endif	//	_I2CMASTER_H_

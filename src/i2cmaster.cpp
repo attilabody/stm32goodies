@@ -6,6 +6,7 @@
  */
 
 #include <sg/i2cmaster.h>
+using namespace sg;
 
 void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c)
 {

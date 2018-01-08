@@ -13,6 +13,8 @@
 #include "sg/i2c_lcd.h"
 #include "sg/strutil.h"
 
+using namespace sg;
+
 // commands
 #define LCD_CLEARDISPLAY 0x01
 #define LCD_RETURNHOME 0x02

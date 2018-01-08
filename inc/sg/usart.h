@@ -13,6 +13,8 @@
 #include <string.h>
 #include <inttypes.h>
 
+namespace sg {
+
 #define USART_COUNT 3
 
 extern "C" {
@@ -100,5 +102,7 @@ private:
 	volatile uint16_t	m_txCount = 0;
 	volatile uint16_t	m_chunkSize = 0;
 };
+
+}	// namespace sg
 
 #endif /* DBGSERIAL_H_ */

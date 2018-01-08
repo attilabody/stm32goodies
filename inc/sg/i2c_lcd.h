@@ -10,6 +10,8 @@
 #include <sg/stm32_hal.h>
 #include <sg/i2cmaster.h>
 
+namespace sg {
+
 class I2cLcd
 {
 public:
@@ -35,5 +37,7 @@ private:
 	static const uint8_t m_rowOffsets[4];
 	static const uint8_t m_init[5];
 };
+
+}	//namespace
 
 #endif /* I2C_LCD_H_ */

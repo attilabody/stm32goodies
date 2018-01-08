@@ -10,6 +10,8 @@
 
 #include <sg/stm32_hal.h>
 
+namespace sg {
+
 class ItLock
 {
 public:
@@ -53,5 +55,6 @@ inline void ItLock::Enable()
 	__enable_irq();
 }
 
+}	//	namespace sg
 
 #endif /* STM32GOODIES_INC_ITLOCK_H_ */

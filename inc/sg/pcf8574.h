@@ -16,6 +16,8 @@
 #include <sg/stm32_hal.h>
 #include <sg/i2cmaster.h>
 
+namespace sg {
+
 class Pcf8574
 {
 public:
@@ -40,6 +42,8 @@ protected:
 	uint8_t				m_data;
 	I2cMaster::Mode		m_mode = I2cMaster::It;
 };
+
+}	//	namespace sg
 
 #endif
 //

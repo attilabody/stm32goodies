@@ -11,6 +11,9 @@
 #include <stddef.h>
 #include <inttypes.h>
 
+namespace sg {
+
+
 //////////////////////////////////////////////////////////////////////////////
 size_t uitodec(unsigned int data, char* buffer);
 size_t uitohex(unsigned int data, char* buffer);
@@ -31,5 +34,7 @@ inline char tochr(const uint8_t in, const bool upper = true)
 {
 	return in + ((in < 10) ? '0' : (upper ? 'A' : 'a') - 10);
 }
+
+}	//	namespace sg
 
 #endif /* INC_STRUTIL_H_ */

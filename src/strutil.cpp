@@ -7,8 +7,10 @@
 #include "sg/strutil.h"
 #include <stdint.h>
 
+using namespace sg;
+
 //////////////////////////////////////////////////////////////////////////////
-size_t uitodec( unsigned int data, char* buffer)
+size_t sg::uitodec( unsigned int data, char* buffer)
 {
 	char *b2 = buffer;
 	if(!data) {
@@ -30,7 +32,7 @@ size_t uitodec( unsigned int data, char* buffer)
 }
 
 //////////////////////////////////////////////////////////////////////////////
-size_t uitohex(unsigned int data, char* buffer)
+size_t sg::uitohex(unsigned int data, char* buffer)
 {
 	char *b2 = buffer;
 
